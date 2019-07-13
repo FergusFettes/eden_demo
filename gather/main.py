@@ -1,9 +1,11 @@
+import numpy as np
 
 
 
-
-def make_universe(size=100, edge_ratio=1, born=0b01100, live=0b01000, beta=1\
-                  method=conway()):
+def make_universe(
+        size=100, edge_ratio=1, born=0b01100, live=0b01000, beta=1,
+        method=conway(), init='random'
+):
     class Universe:
         """Data structure for the universe"""
         pass
@@ -16,7 +18,10 @@ def make_universe(size=100, edge_ratio=1, born=0b01100, live=0b01000, beta=1\
     uni.live = live                 # Remain-alive rules
     uni.beta = beta
     uni.method = method
-    uni.data = np.zeros((size, int(size * np.edge_ratio)), np.bool_)
+    if init=='random':
+        uni.data = np.random.random((size, uni.width)) > 0.5
+    else:
+        uni.data = np.zeros((size, int(size * np.edge_ratio)), np.bool_)
 
     return uni
 
