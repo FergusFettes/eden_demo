@@ -4,7 +4,7 @@ import numpy as np
 
 def make_universe(
         size=100, edge_ratio=1, born=0b01100, live=0b01000, beta=1,
-        method=conway(), init='random'
+        init='random'
 ):
     class Universe:
         """Data structure for the universe"""
@@ -17,7 +17,6 @@ def make_universe(
     uni.born = born                 # Birth rules of universe
     uni.live = live                 # Remain-alive rules
     uni.beta = beta
-    uni.method = method
     if init=='random':
         uni.data = np.random.random((size, uni.width)) > 0.5
     else:
