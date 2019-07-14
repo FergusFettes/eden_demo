@@ -44,11 +44,11 @@ def ising(updates, universe):
     D = universe.width
     arr = universe.data.copy()
     for _ in range(int(updates * N * D)):
-        a = np.random.random() * N
-        b = np.random.random() * D
+        a = int(np.random.random() * N)
+        b = int(np.random.random() * D)
         nb = neumann_neighbors_same([a,b], universe)
         if nb - 2 <= 0 or np.random.random() < cost[nb - 2]:
-            arr[pos[0], pos[1]] = 1 - arr[pos[0], pos[1]]
+            arr[a, b] = 1 - arr[a, b]
     universe.data = arr
 
 def conway(universe):
@@ -124,16 +124,16 @@ def neumann_neighbors_sum(pos, universe):
     a = pos[0]
     b = pos[1]
     if a == 0 or b == 0 or a == N-1 or b == D-1:
-        l = arr[(a + 1) % N][b]
-        r = arr[(a - 1 + N) % N][b]
-        u = arr[a][(b + 1) % D]
-        d = arr[a][(b - 1 + D) % D]
+        l = universe.data[(a + 1) % N][b]
+        r = universe.data[(a - 1 + N) % N][b]
+        u = universe.data[a][(b + 1) % D]
+        d = universe.data[a][(b - 1 + D) % D]
         nb = l + u + d + r
     else:
-        l = arr[(a + 1)][b]
-        r = arr[(a - 1)][b]
-        u = arr[a][(b + 1)]
-        d = arr[a][(b - 1)]
+        l = universe.data[(a + 1)][b]
+        r = universe.data[(a - 1)][b]
+        u = universe.data[a][(b + 1)]
+        d = universe.data[a][(b - 1)]
         nb = l + u + d + r
     return nb
 
@@ -163,27 +163,26 @@ def moore_neighbors_sum(pos, universe):
     """
     N = universe.size
     D = universe.width
-    arr = universe.data
     a = pos[0]
     b = pos[1]
     if a == 0 or b == 0 or a == N-1 or b == D-1:
-        l = arr[(a + 1) % N][b]
-        r = arr[(a - 1 + N) % N][b]
-        ul = arr[(a + 1) % N][(b + 1) % D]
-        ur = arr[(a - 1 + N) % N][(b + 1) % D]
-        dl = arr[(a + 1) % N][(b - 1 + D) % D]
-        dr = arr[(a - 1 + N) % N][(b - 1 + D) % D]
-        u = arr[a][(b + 1) % D]
-        d = arr[a][(b - 1 + D) % D]
+        l = universe.data[(a + 1) % N][b]
+        r = universe.data[(a - 1 + N) % N][b]
+        ul = universe.data[(a + 1) % N][(b + 1) % D]
+        ur = universe.data[(a - 1 + N) % N][(b + 1) % D]
+        dl = universe.data[(a + 1) % N][(b - 1 + D) % D]
+        dr = universe.data[(a - 1 + N) % N][(b - 1 + D) % D]
+        u = universe.data[a][(b + 1) % D]
+        d = universe.data[a][(b - 1 + D) % D]
         nb = l + u + d + r + ul + ur + dl + dr
     else:
-        l = arr[(a + 1)][b]
-        r = arr[(a - 1)][b]
-        ul = arr[(a + 1)][(b + 1)]
-        ur = arr[(a - 1)][(b + 1)]
-        dl = arr[(a + 1)][(b - 1)]
-        dr = arr[(a - 1)][(b - 1)]
-        u = arr[a][(b + 1)]
-        d = arr[a][(b - 1)]
+        l = universe.data[(a + 1)][b]
+        r = universe.data[(a - 1)][b]
+        ul = universe.data[(a + 1)][(b + 1)]
+        ur = universe.data[(a - 1)][(b + 1)]
+        dl = universe.data[(a + 1)][(b - 1)]
+        dr = universe.data[(a - 1)][(b - 1)]
+        u = universe.data[a][(b + 1)]
+        d = universe.data[a][(b - 1)]
         nb = l + u + d + r + ul + ur + dl + dr
     return nb
