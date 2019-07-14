@@ -27,6 +27,25 @@ def make_universe(
 def update_universe(method, universe):
     pass
 
+def print_array(universe):
+    """
+    Performs a basic print.
+
+    :param universe:    the univese, containing the data to print
+    :return:            None
+    """
+    temp = np.empty_like(universe.data, str)
+    out = []
+    transcript = {0: '.',
+                  1: 'o',
+                  }
+    for i in range(universe.size):
+        for j in range(universe.width):
+            temp[i][j] = transcript[univese.data[i][j]]
+        out.append(''.join(temp[i,:]))
+    fin = '\n'.join(out)
+    print(fin)
+
 def ising(updates, universe):
     """
     Performs ising updates on the array.
