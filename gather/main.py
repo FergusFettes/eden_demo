@@ -3,7 +3,7 @@ import numpy as np
 
 
 def make_universe(
-        size=100, edge_ratio=1, born=0b01100, live=0b01000, beta=1,
+        size=100, edge_ratio=1, born=0b01100, live=0b01000, beta=0.4,
         init='random'
 ):
     class Universe:
@@ -41,7 +41,7 @@ def print_array(universe):
                   }
     for i in range(universe.size):
         for j in range(universe.width):
-            temp[i][j] = transcript[univese.data[i][j]]
+            temp[i][j] = transcript[universe.data[i][j]]
         out.append(''.join(temp[i,:]))
     fin = '\n'.join(out)
     print(fin)
