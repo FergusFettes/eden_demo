@@ -3,7 +3,7 @@ import numpy as np
 
 
 def make_universe(
-        size=100, edge_ratio=1, born=0b01100, live=0b01000, beta=0.4,
+        size=100, edge_ratio=1, born=0b01000, live=0b01100, beta=0.4,
         init='random'
 ):
     class Universe:
@@ -21,6 +21,7 @@ def make_universe(
         uni.data = np.random.random((size, uni.width)) > 0.5
     else:
         uni.data = np.zeros((size, int(size * np.edge_ratio)), np.bool_)
+    uni.back = uni.data.copy()
 
     return uni
 
@@ -61,14 +62,13 @@ def ising(updates, universe):
     cost[2] = cost[1] ** 2
     N = universe.size
     D = universe.width
-    arr = universe.data.copy()
+    universe.back = universe.data
     for _ in range(int(updates * N * D)):
         a = int(np.random.random() * N)
         b = int(np.random.random() * D)
         nb = neumann_neighbors_same([a,b], universe)
         if nb - 2 <= 0 or np.random.random() < cost[nb - 2]:
-            arr[a, b] = 1 - arr[a, b]
-    universe.data = arr
+            universe.data[a, b] = 1 - universe.data[a, b]
 
 def conway(universe):
     """
@@ -77,17 +77,16 @@ def conway(universe):
     :param universe: the universe
     :return:        None
     """
-    N = dim[0]
-    D = dim[1]
-    arr = universe.data.copy()
+    N = universe.size
+    D = universe.width
+    universe.back = universe.data.copy()
     for i in range(N):
         for j in range(D):
-            NB = neumann_neighbors_sum([i,j], universe)
-            if arr[i][j] == 1:
-                arr[i][j] == (universe.live>>NB)&1
+            NB = moore_neighbors_sum([i,j], universe)
+            if universe.back[i][j] == 1:
+                universe.data[i][j] = (universe.live>>NB)&1
             else:
-                arr[i][j] == (universe.born>>NB)&1
-    universe.data = arr
+                universe.data[i][j] = (universe.born>>NB)&1
 
 def conway_old(universe):
     """
@@ -111,9 +110,9 @@ def conway_old(universe):
             NB = l[i][j] + r[i][j] + u[i][j] + d[i][j] + ul[i][j] + ur[i][j]\
                 + dl[i][j] + dr[i][j]
             if universe.data[i][j] == 1:
-                universe.data[i][j] == (universe.live>>NB)&1
+                universe.data[i][j] = (universe.live>>NB)&1
             else:
-                universe.data[i][j] == (universe.born>>NB)&1
+                universe.data[i][j] = (universe.born>>NB)&1
 
 def neumann_neighbors_same(pos, universe):
     """
@@ -125,7 +124,7 @@ def neumann_neighbors_same(pos, universe):
     """
     a = pos[0]
     b = pos[1]
-    if universe.data[a, b]:
+    if universe.back[a, b]:
         return neumann_neighbors_sum(pos, universe)
     else:
         return 4 - neumann_neighbors_sum(pos, universe)
@@ -143,18 +142,18 @@ def neumann_neighbors_sum(pos, universe):
     a = pos[0]
     b = pos[1]
     if a == 0 or b == 0 or a == N-1 or b == D-1:
-        l = universe.data[(a + 1) % N][b]
-        r = universe.data[(a - 1 + N) % N][b]
-        u = universe.data[a][(b + 1) % D]
-        d = universe.data[a][(b - 1 + D) % D]
-        nb = l + u + d + r
+        l = universe.back[(a + 1) % N][b]
+        r = universe.back[(a - 1 + N) % N][b]
+        u = universe.back[a][(b + 1) % D]
+        d = universe.back[a][(b - 1 + D) % D]
+        nb = [l, u, d, r]
     else:
-        l = universe.data[(a + 1)][b]
-        r = universe.data[(a - 1)][b]
-        u = universe.data[a][(b + 1)]
-        d = universe.data[a][(b - 1)]
-        nb = l + u + d + r
-    return nb
+        l = universe.back[(a + 1)][b]
+        r = universe.back[(a - 1)][b]
+        u = universe.back[a][(b + 1)]
+        d = universe.back[a][(b - 1)]
+        nb = [l, u, d, r]
+    return nb.count(True)
 
 def moore_neighbors_same(pos, universe):
     """
@@ -166,7 +165,7 @@ def moore_neighbors_same(pos, universe):
     """
     a = pos[0]
     b = pos[1]
-    if universe.data[a, b]:
+    if universe.back[a, b]:
         return moore_neighbors_sum(pos, universe)
     else:
         return 8 - moore_neighbors_sum(pos, universe)
@@ -185,23 +184,23 @@ def moore_neighbors_sum(pos, universe):
     a = pos[0]
     b = pos[1]
     if a == 0 or b == 0 or a == N-1 or b == D-1:
-        l = universe.data[(a + 1) % N][b]
-        r = universe.data[(a - 1 + N) % N][b]
-        ul = universe.data[(a + 1) % N][(b + 1) % D]
-        ur = universe.data[(a - 1 + N) % N][(b + 1) % D]
-        dl = universe.data[(a + 1) % N][(b - 1 + D) % D]
-        dr = universe.data[(a - 1 + N) % N][(b - 1 + D) % D]
-        u = universe.data[a][(b + 1) % D]
-        d = universe.data[a][(b - 1 + D) % D]
-        nb = l + u + d + r + ul + ur + dl + dr
+        l = universe.back[(a + 1) % N][b]
+        r = universe.back[(a - 1 + N) % N][b]
+        ul = universe.back[(a + 1) % N][(b + 1) % D]
+        ur = universe.back[(a - 1 + N) % N][(b + 1) % D]
+        dl = universe.back[(a + 1) % N][(b - 1 + D) % D]
+        dr = universe.back[(a - 1 + N) % N][(b - 1 + D) % D]
+        u = universe.back[a][(b + 1) % D]
+        d = universe.back[a][(b - 1 + D) % D]
+        nb = [l, u, d, r, ul, ur, dl, dr]
     else:
-        l = universe.data[(a + 1)][b]
-        r = universe.data[(a - 1)][b]
-        ul = universe.data[(a + 1)][(b + 1)]
-        ur = universe.data[(a - 1)][(b + 1)]
-        dl = universe.data[(a + 1)][(b - 1)]
-        dr = universe.data[(a - 1)][(b - 1)]
-        u = universe.data[a][(b + 1)]
-        d = universe.data[a][(b - 1)]
-        nb = l + u + d + r + ul + ur + dl + dr
-    return nb
+        l = universe.back[(a + 1)][b]
+        r = universe.back[(a - 1)][b]
+        ul = universe.back[(a + 1)][(b + 1)]
+        ur = universe.back[(a - 1)][(b + 1)]
+        dl = universe.back[(a + 1)][(b - 1)]
+        dr = universe.back[(a - 1)][(b - 1)]
+        u = universe.back[a][(b + 1)]
+        d = universe.back[a][(b - 1)]
+        nb = [l, u, d, r, ul, ur, dl, dr]
+    return nb.count(True)
