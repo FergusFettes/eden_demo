@@ -25,11 +25,34 @@ def make_universe(
             (uni.size//2)-5:(uni.size//2)+6,
             (uni.width//2)-5:(uni.width//2)+5] = 1
     uni.back = uni.data.copy()
+    uni.has_space = has_neumann_space(uni)
 
     return uni
 
 def update_universe(method, universe):
     pass
+
+def has_neumann_space(universe):
+    """
+    Find live positions which have space in their neumann neighborhood
+    """
+    occupied = np.argwhere(universe.data)
+    has_space = []
+    for position in occupied:
+        if neumann_neighbors_sum(position, universe) < 4:
+            has_space.append(position)
+    return np.asarray(has_space)
+
+def eden(universe):
+    """
+    Basic eden model implementation
+    """
+    universe.back = universe.data
+    index = np.random.randint(0, uni.has_space.shape[0])
+    site = uni.has_space[index]
+    NB = neumann_neighbors_sum(site, universe)
+
+
 
 def print_array(universe):
     """
@@ -157,6 +180,32 @@ def neumann_neighbors_sum(pos, universe):
         d = universe.back[a][(b - 1)]
         nb = [l, u, d, r]
     return nb.count(True)
+
+def choose_neumann_neighbor(pos, universe):
+    """
+    Given a position, look for an empty space and pick one
+
+    :param pos:         position to be checked
+    :param universe: the universe
+    :return:            neighbor position
+    """
+    N = universe.size
+    D = universe.width
+    a = pos[0]
+    b = pos[1]
+    l = universe.back[(a + 1) % N][b]
+    r = universe.back[(a - 1 + N) % N][b]
+    u = universe.back[a][(b + 1) % D]
+    d = universe.back[a][(b - 1 + D) % D]
+    nb = [l, u, d, r]
+    L = [(a + 1) % N, b]
+    R = [(a - 1 + N) % N, b]
+    U = [a, (b + 1) % D]
+    D = [a, (b - 1 + D) % D]
+    NB = [L, U, D, R]
+    choice = int((np.random.random() * nb.count(True)))
+    pos_list = np.argwhere(nb).flatten()
+    return NB[pos_list[choice]]
 
 def moore_neighbors_same(pos, universe):
     """
