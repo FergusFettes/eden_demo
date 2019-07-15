@@ -41,16 +41,22 @@ def has_neumann_space(universe):
     for position in occupied:
         if neumann_neighbors_sum(position, universe) < 4:
             has_space.append(position)
-    return np.asarray(has_space)
+    return has_space
 
 def eden(universe):
     """
     Basic eden model implementation
     """
+    index = np.random.randint(0, universe.has_space.shape[0])
+    site = universe.has_space.pop[index]
+    target = choose_neumann_neighbor(site, universe)
+    universe.data[target] = 1
     universe.back = universe.data
-    index = np.random.randint(0, uni.has_space.shape[0])
-    site = uni.has_space[index]
-    NB = neumann_neighbors_sum(site, universe)
+    import ipdb; ipdb.set_trace()
+    if neumann_neighbors_sum(site, universe):
+        universe.has_space.append(site)
+    if neumann_neighbors_sum(target, universe):
+        universe.has_space.append(target)
 
 
 
