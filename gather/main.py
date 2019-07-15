@@ -17,10 +17,13 @@ def make_universe(
     uni.born = born                 # Birth rules of universe
     uni.live = live                 # Remain-alive rules
     uni.beta = beta
+    uni.data = np.zeros((size, uni.width), np.bool_)
     if init=='random':
         uni.data = np.random.random((size, uni.width)) > 0.5
-    else:
-        uni.data = np.zeros((size, int(size * np.edge_ratio)), np.bool_)
+    elif init=='center':
+        uni.data[
+            (uni.size//2)-5:(uni.size//2)+6,
+            (uni.width//2)-5:(uni.width//2)+5] = 1
     uni.back = uni.data.copy()
 
     return uni
@@ -107,12 +110,12 @@ def conway_old(universe):
     D = universe.width
     for i in range(N):
         for j in range(D):
-            NB = l[i][j] + r[i][j] + u[i][j] + d[i][j] + ul[i][j] + ur[i][j]\
-                + dl[i][j] + dr[i][j]
+            NB = [l[i][j], r[i][j], u[i][j], d[i][j], ul[i][j], ur[i][j],\
+               dl[i][j], dr[i][j]]
             if universe.data[i][j] == 1:
-                universe.data[i][j] = (universe.live>>NB)&1
+                universe.data[i][j] = (universe.live>>NB.count(True))&1
             else:
-                universe.data[i][j] = (universe.born>>NB)&1
+                universe.data[i][j] = (universe.born>>NB.count(True))&1
 
 def neumann_neighbors_same(pos, universe):
     """
