@@ -24,6 +24,8 @@ def make_universe(
         uni.data[
             (uni.size//2)-5:(uni.size//2)+6,
             (uni.width//2)-5:(uni.width//2)+5] = 1
+    elif init=='none':
+        pass
     uni.back = uni.data.copy()
     uni.has_space = has_neumann_space(uni)
 
@@ -52,12 +54,10 @@ def eden(universe):
     target = choose_neumann_neighbor(site, universe)
     universe.data[target[0], target[1]] = 1
     universe.back = universe.data
-    if neumann_neighbors_sum(site, universe):
+    if neumann_neighbors_sum(site, universe) < 4:
         universe.has_space.append(site)
-    if neumann_neighbors_sum(target, universe):
+    if neumann_neighbors_sum(target, universe) < 4:
         universe.has_space.append(target)
-
-
 
 def print_array(universe):
     """
@@ -208,8 +208,9 @@ def choose_neumann_neighbor(pos, universe):
     U = [a, (b + 1) % D]
     D = [a, (b - 1 + D) % D]
     NB = [L, U, D, R]
-    choice = int((np.random.random() * nb.count(True)))
-    pos_list = np.argwhere(nb).flatten()
+    choice = int((np.random.random() * nb.count(False)))
+    pos_list = np.argwhere(np.asarray(nb) - 1).flatten()
+    import ipdb; ipdb.set_trace()
     return np.asarray(NB[pos_list[choice]])
 
 def moore_neighbors_same(pos, universe):
