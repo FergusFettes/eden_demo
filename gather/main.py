@@ -47,12 +47,11 @@ def eden(universe):
     """
     Basic eden model implementation
     """
-    index = np.random.randint(0, universe.has_space.shape[0])
-    site = universe.has_space.pop[index]
+    index = np.random.randint(0, len(universe.has_space))
+    site = universe.has_space.pop(index)
     target = choose_neumann_neighbor(site, universe)
-    universe.data[target] = 1
+    universe.data[target[0], target[1]] = 1
     universe.back = universe.data
-    import ipdb; ipdb.set_trace()
     if neumann_neighbors_sum(site, universe):
         universe.has_space.append(site)
     if neumann_neighbors_sum(target, universe):
@@ -211,7 +210,7 @@ def choose_neumann_neighbor(pos, universe):
     NB = [L, U, D, R]
     choice = int((np.random.random() * nb.count(True)))
     pos_list = np.argwhere(nb).flatten()
-    return NB[pos_list[choice]]
+    return np.asarray(NB[pos_list[choice]])
 
 def moore_neighbors_same(pos, universe):
     """
