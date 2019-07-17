@@ -23,21 +23,21 @@ class NeighborTestCase(unittest.TestCase):
     def setUp(self):
         self.uni = make_universe(size=10, edge_ratio=1, init='none')
         self.uni.data[1:3, 1:3] = 1
-        self.uni.back = uni.data
+        self.uni.back = self.uni.data
 
     def test_moore_neighbors_sum(self):
-        testing.assertEqual(moore_neighbors_sum([1,1], self.uni), 3)
+        self.assertEqual(moore_neighbors_sum([1,1], self.uni), 3)
 
     def test_moore_neighbors_same(self):
-        testing.assertEqual(moore_neighbors_same([1,1], self.uni), 3)
-        testing.assertEqual(moore_neighbors_same([0,0], self.uni), 7)
+        self.assertEqual(moore_neighbors_same([1,1], self.uni), 3)
+        self.assertEqual(moore_neighbors_same([0,0], self.uni), 7)
 
     def test_neumann_neighbors_sum(self):
-        testing.assertEqual(neumann_neighbors_sum([1,1], self.uni), 2)
+        self.assertEqual(neumann_neighbors_sum([1,1], self.uni), 2)
 
     def test_neumann_neighbors_same(self):
-        testing.assertEqual(neumann_neighbors_same([1,1], self.uni), 2)
-        testing.assertEqual(neumann_neighbors_same([0,0], self.uni), 4)
+        self.assertEqual(neumann_neighbors_same([1,1], self.uni), 2)
+        self.assertEqual(neumann_neighbors_same([0,0], self.uni), 4)
 
 class IsingTestCase(unittest.TestCase):
 
@@ -57,24 +57,27 @@ class ConwayTestCase(unittest.TestCase):
         self.uni = make_universe(size=100, edge_ratio=1, init='none')
 
     def test_conway_wraps(self):
-        self.uni.data[0:3,0:3] = 1
-        conway(self.uni)
+        uni = make_universe(size=5, edge_ratio=1, init='none')
+        uni.data[0:3,0:3] = 1
+        arr2 = uni.back.copy()
+        conway(uni)
 
-        arr2 = uni.back
         arr2[:,:] = 0
         arr2[0,0] = 1; arr2[2,0] = 1; arr2[2,2] = 1; arr2[0,2] = 1
         arr2[1,3:5] = 1; arr2[3:5, 1] = 1
 
-        testing.assert_array_equal(arr2, self.uni.data)
+        testing.assert_array_equal(arr2, uni.data)
 
     def test_conway_neumann_versus_old(self):
         uni = make_universe(size=100, edge_ratio=1, init='random')
-        uni2 = uni
+        uni2 = make_universe(size=100, edge_ratio=1, init='random')
+        uni2.data = uni.data.copy()
+        uni2.back = uni2.data.copy()
         testing.assert_array_equal(uni.data, uni2.data)
 
-        conway(self.uni)
+        conway(uni)
         testing.assert_equal(np.any(np.not_equal(uni.data, uni2.data)), True)
-        conway_old(self.rule, tst_dimL(), arr2)
+        conway_old(uni2)
         testing.assert_array_equal(uni.data, uni2.data)
 
 if __name__=="__main__":
