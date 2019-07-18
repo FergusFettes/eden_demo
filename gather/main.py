@@ -22,8 +22,8 @@ def make_universe(
     if init=='random':
         uni.data = np.random.randint(0, uni.states, (size, uni.width))
     elif init=='center':
-        center = np.random.randint(0, uni.states, (20, 20))
-        uni.data[(uni.size//2)-10:,(uni.width//2)-10:] = center[:, :]
+        center = np.random.randint(1, uni.states, (20, 20))
+        uni.data[(uni.size//2)-10:(uni.size//2)+10,(uni.width//2)-10:(uni.width//2)+10] = center
     elif init=='none':
         pass
     uni.back = uni.data.copy()

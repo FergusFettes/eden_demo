@@ -18,6 +18,16 @@ from main import (
 debug = True
 
 
+class UniverseTestCase(unittest.TestCase):
+
+    def test_make_universe(self):
+        uni = make_universe(100, 5, 3, 5, 1, 2, 'random')
+
+    def test_make_universe_center(self):
+        uni = make_universe(init='center')
+        self.assertTrue(uni.data[uni.size//2, uni.width//2] > 0)
+
+
 class NeighborTestCase(unittest.TestCase):
 
     def setUp(self):
