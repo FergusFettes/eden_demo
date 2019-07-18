@@ -4,7 +4,7 @@ import numpy as np
 
 def make_universe(
         size=100, edge_ratio=1, born=0b01000, live=0b01100, beta=0.4,
-        init='random'
+        states=2, init='random'
 ):
     class Universe:
         """Data structure for the universe"""
@@ -17,13 +17,13 @@ def make_universe(
     uni.born = born                 # Birth rules of universe
     uni.live = live                 # Remain-alive rules
     uni.beta = beta
-    uni.data = np.zeros((size, uni.width), np.bool_)
+    uni.states = states
+    uni.data = np.zeros((size, uni.width))
     if init=='random':
-        uni.data = np.random.random((size, uni.width)) > 0.5
+        uni.data = np.random.randint(0, uni.states, (size, uni.width))
     elif init=='center':
-        uni.data[
-            (uni.size//2)-5:(uni.size//2)+6,
-            (uni.width//2)-5:(uni.width//2)+5] = 1
+        center = np.random.randint(0, uni.states, (20, 20))
+        uni.data[(uni.size//2)-10:,(uni.width//2)-10:] = center[:, :]
     elif init=='none':
         pass
     uni.back = uni.data.copy()
@@ -51,8 +51,10 @@ def eden(universe):
     """
     index = np.random.randint(0, len(universe.has_space))
     site = universe.has_space.pop(index)
+    if neumann_neighbors_sum(site, universe) == 4:
+        return
     target = choose_neumann_neighbor(site, universe)
-    universe.data[target[0], target[1]] = 1
+    universe.data[target[0], target[1]] = universe.data[site[0], site[1]]
     universe.back = universe.data.copy()
     if neumann_neighbors_sum(site, universe) < 4:
         universe.has_space.append(site)
@@ -177,14 +179,14 @@ def neumann_neighbors_sum(pos, universe):
         r = universe.back[(a - 1 + N) % N][b]
         u = universe.back[a][(b + 1) % D]
         d = universe.back[a][(b - 1 + D) % D]
-        nb = [l, u, d, r]
+        nb = np.asarray([l, u, d, r])
     else:
         l = universe.back[(a + 1)][b]
         r = universe.back[(a - 1)][b]
         u = universe.back[a][(b + 1)]
         d = universe.back[a][(b - 1)]
-        nb = [l, u, d, r]
-    return nb.count(True)
+        nb = np.asarray([l, u, d, r])
+    return np.sum(nb > 0)
 
 def choose_neumann_neighbor(pos, universe):
     """
@@ -195,9 +197,9 @@ def choose_neumann_neighbor(pos, universe):
     :return:            neighbor position
     """
     NB = neighbor_coords(pos, universe)
-    nb = neighbor_truth(pos, universe)
-    choice = int((np.random.random() * nb.count(False)))
-    pos_list = np.argwhere(np.asarray(nb) - 1).flatten()
+    nb = np.asarray(neighbor_truth(pos, universe))
+    choice = int((np.random.random() * np.sum(nb == 0)))
+    pos_list = np.argwhere(nb == 0).flatten()
     return np.asarray(NB[pos_list[choice]])
 
 def neighbor_truth(pos, universe):

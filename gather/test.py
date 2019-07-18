@@ -94,7 +94,7 @@ class EdenTestCase(unittest.TestCase):
 
     def test_neighbor_truth(self):
         coords = neighbor_truth([1,1], self.uni)
-        target = [True, True, False, False]
+        target = [1, 1, 0, 0]
         testing.assert_array_equal(coords, target)
 
     def test_choose_neumann_neighbor_two_and_two(self):
