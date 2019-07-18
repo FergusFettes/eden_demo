@@ -53,7 +53,7 @@ def eden(universe):
     site = universe.has_space.pop(index)
     target = choose_neumann_neighbor(site, universe)
     universe.data[target[0], target[1]] = 1
-    universe.back = universe.data
+    universe.back = universe.data.copy()
     if neumann_neighbors_sum(site, universe) < 4:
         universe.has_space.append(site)
     if neumann_neighbors_sum(target, universe) < 4:

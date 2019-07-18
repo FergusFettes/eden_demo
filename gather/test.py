@@ -12,7 +12,7 @@ import unittest.mock
 from main import (
     choose_neumann_neighbor, neumann_neighbors_sum, neumann_neighbors_same,
     moore_neighbors_sum, moore_neighbors_same, ising, conway, conway_old,
-    make_universe, neighbor_coords, neighbor_truth,
+    make_universe, neighbor_coords, neighbor_truth, eden,
 )
 
 debug = True
@@ -84,7 +84,7 @@ class EdenTestCase(unittest.TestCase):
 
     def setUp(self):
         self.uni = make_universe(size=100, edge_ratio=1, init='none')
-        self.uni.data[1:3,1:3] = 1
+        self.uni.data[1:4,1:4] = 1
         self.uni.back = self.uni.data.copy()
 
     def test_neighbor_coords(self):
@@ -102,6 +102,11 @@ class EdenTestCase(unittest.TestCase):
         for i in range(100):
             neighbors.append(tuple(choose_neumann_neighbor([1,1], self.uni)))
         self.assertEqual(len(set(neighbors)), 2)
+
+    def test_eden_has_space_popped(self):
+        self.uni.has_space = [np.asarray([1, 2])]
+        eden(self.uni)
+        testing.assert_array_equal(self.uni.has_space, [np.asarray([0, 2])])
 
 
 if __name__=="__main__":
