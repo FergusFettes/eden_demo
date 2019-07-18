@@ -194,24 +194,31 @@ def choose_neumann_neighbor(pos, universe):
     :param universe: the universe
     :return:            neighbor position
     """
-    N = universe.size
-    D = universe.width
-    a = pos[0]
-    b = pos[1]
-    l = universe.back[(a + 1) % N][b]
-    r = universe.back[(a - 1 + N) % N][b]
-    u = universe.back[a][(b + 1) % D]
-    d = universe.back[a][(b - 1 + D) % D]
-    nb = [l, u, d, r]
-    L = [(a + 1) % N, b]
-    R = [(a - 1 + N) % N, b]
-    U = [a, (b + 1) % D]
-    D = [a, (b - 1 + D) % D]
-    NB = [L, U, D, R]
+    NB = neighbor_coords(pos, universe)
+    nb = neighbor_truth(pos, universe)
     choice = int((np.random.random() * nb.count(False)))
     pos_list = np.argwhere(np.asarray(nb) - 1).flatten()
-    import ipdb; ipdb.set_trace()
     return np.asarray(NB[pos_list[choice]])
+
+def neighbor_truth(pos, universe):
+    """Returns the coordinates of neighbors"""
+    N = universe.size
+    D = universe.width
+    l = universe.back[(pos[0] + 1) % N][pos[1]]
+    r = universe.back[(pos[0] - 1 + N) % N][pos[1]]
+    u = universe.back[pos[0]][(pos[1] + 1) % D]
+    d = universe.back[pos[0]][(pos[1] - 1 + D) % D]
+    return [l, u, d, r]
+
+def neighbor_coords(pos, universe):
+    """Returns the state of the neighbors"""
+    N = universe.size
+    D = universe.width
+    L = [(pos[0] + 1) % N, pos[1]]
+    R = [(pos[0] - 1 + N) % N, pos[1]]
+    U = [pos[0], (pos[1] + 1) % D]
+    D = [pos[0], (pos[1] - 1 + D) % D]
+    return [L, U, D, R]
 
 def moore_neighbors_same(pos, universe):
     """
