@@ -12,7 +12,7 @@ import unittest.mock
 from main import (
     choose_neumann_neighbor, neumann_neighbors_sum, neumann_neighbors_same,
     moore_neighbors_sum, moore_neighbors_same, ising, conway, conway_old,
-    make_universe,
+    make_universe, neighbor_coords, neighbor_truth,
 )
 
 debug = True
@@ -79,6 +79,30 @@ class ConwayTestCase(unittest.TestCase):
         testing.assert_equal(np.any(np.not_equal(uni.data, uni2.data)), True)
         conway_old(uni2)
         testing.assert_array_equal(uni.data, uni2.data)
+
+class EdenTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.uni = make_universe(size=100, edge_ratio=1, init='none')
+        self.uni.data[1:3,1:3] = 1
+        self.uni.back = self.uni.data.copy()
+
+    def test_neighbor_coords(self):
+        coords = neighbor_coords([1,1], self.uni)
+        target = [[2, 1], [1, 2], [1, 0], [0, 1]]
+        testing.assert_array_equal(coords, target)
+
+    def test_neighbor_truth(self):
+        coords = neighbor_truth([1,1], self.uni)
+        target = [True, True, False, False]
+        testing.assert_array_equal(coords, target)
+
+    def test_choose_neumann_neighbor_two_and_two(self):
+        neighbors = []
+        for i in range(100):
+            neighbors.append(tuple(choose_neumann_neighbor([1,1], self.uni)))
+        self.assertEqual(len(set(neighbors)), 2)
+
 
 if __name__=="__main__":
     unittest.main(verbosity=2 if debug is True else 1)
