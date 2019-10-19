@@ -1,0 +1,13 @@
+FROM python:3.7.2-slim
+
+WORKDIR /gather
+
+COPY /gather /gather
+COPY local_settings.yml /gather
+COPY logger_tools.py /gather
+
+RUN apt-get -qq update && apt-get -qq install -y gcc && pip install --trusted-host pypi.python.org -r requirements.txt
+
+ENV NAME gather
+
+CMD ["python", "main.py"]

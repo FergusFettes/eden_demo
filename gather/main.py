@@ -70,8 +70,9 @@ def print_array(universe):
     """
     temp = np.empty_like(universe.data, str)
     out = []
-    transcript = {0: '.',
-                  1: 'o',
+    transcript = {0.0: '.',
+                  1.0: 'm',
+                  2.0: 'p',
                   }
     for i in range(universe.size):
         for j in range(universe.width):
@@ -203,7 +204,7 @@ def choose_neumann_neighbor(pos, universe):
     return np.asarray(NB[pos_list[choice]])
 
 def neighbor_truth(pos, universe):
-    """Returns the coordinates of neighbors"""
+    """Returns the state of the neighbors"""
     N = universe.size
     D = universe.width
     l = universe.back[(pos[0] + 1) % N][pos[1]]
@@ -213,7 +214,7 @@ def neighbor_truth(pos, universe):
     return [l, u, d, r]
 
 def neighbor_coords(pos, universe):
-    """Returns the state of the neighbors"""
+    """Returns the coordinates of neighbors"""
     N = universe.size
     D = universe.width
     L = [(pos[0] + 1) % N, pos[1]]

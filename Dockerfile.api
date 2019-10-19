@@ -1,0 +1,15 @@
+FROM python:3.7.2-slim
+
+WORKDIR /api
+
+COPY /api /api
+COPY local_settings.yml /api
+COPY /gather/ebay/products.yml /api
+
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+EXPOSE 5000
+
+ENV NAME api
+
+CMD ["python", "api_v1.py"]
